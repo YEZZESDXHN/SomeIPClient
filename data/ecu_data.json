@@ -1,0 +1,40 @@
+{
+    "ecus": [
+        {
+            "name": "IVC",
+            "id": 3,
+            "application_name": "SOME_IP_Unsecure_Domain_01",
+            "app_id": 50,
+            "mac_address": "0c:0e:76:8f:e8:fd",
+            "vlan": 1500,
+            "ip": "169.254.118.31",
+            "ttl": 3,
+            "someip_port_src": 30501,
+            "someip_port_dst": 30491,
+            "someip-sdport_opt": 30501,
+            "sd_port_src": 30490,
+            "sd_port_dst": 30490,
+            "someip_service": 1234
+        },
+        {
+            "name": "PCU_Proxy_Frontend",
+            "id": 98,
+            "aplication_name": "SOME_IP_Unsecure_Domain_01",
+            "app_id": 50,
+            "mac_address": "AA:BB:CC:DD:20:60",
+            "vlan": 1500,
+            "ip": "169.254.118.34",
+            "ttl": 3,
+            "someip_port_src": 30501,
+            "someip_port_dst": 30491,
+            "sd_port_src": 30490,
+            "sd_port_dst": 30490,
+            "someip_service": 1234,
+            "MAC_1500_MULTICAST": "01:00:5E:32:14:01",
+            "IP_1500_MULTICAST": "237.50.20.1",
+            "option_sdport": 30501,
+            "option_sdprot": "0x11",
+            "option_sdport_dst": 30491
+        }
+    ]
+}
