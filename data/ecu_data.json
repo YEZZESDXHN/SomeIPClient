@@ -1,7 +1,7 @@
 {
     "ecus": [
         {
-            "name": "IVC",
+            "name": "VIU_ML",
             "id": 3,
             "application_name": "SOME_IP_Unsecure_Domain_01",
             "app_id": 50,
@@ -17,7 +17,23 @@
             "someip_service": 1234
         },
         {
-            "name": "PCU_Proxy_Frontend",
+            "name": "VIU_MR",
+            "id": 4,
+            "application_name": "SOME_IP_Unsecure_Domain_01",
+            "app_id": 50,
+            "mac_address": "02:df:53:00:00:30",
+            "vlan": 14,
+            "ip": "172.16.114.70",
+            "ttl": 5,
+            "someip_port_src": 50102,
+            "someip_port_dst": 50102,
+            "someip-sdport_opt": 30501,
+            "sd_port_src": 30490,
+            "sd_port_dst": 30490,
+            "someip_service": 1234
+        },
+        {
+            "name": "S32G",
             "id": 98,
             "aplication_name": "SOME_IP_Unsecure_Domain_01",
             "app_id": 50,

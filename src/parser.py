@@ -16,8 +16,8 @@ class Parser:
     """
     # Se incluyen las rutas relatativas de los fichero que contienen la información
     # de las ECUs y de los servicios asociados a las mismas.
-    ECU_DATA_PATH = "../data/ecu_data.json"
-    SERVICES_DATA_PATH = "../data/services.json"
+    ECU_DATA_PATH = "./data/ecu_data.json"
+    SERVICES_DATA_PATH = "./data/services.json"
 
     def __init__(self):
         """

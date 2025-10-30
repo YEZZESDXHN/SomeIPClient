@@ -8,7 +8,7 @@ import os, sys
 # Agrega el directorio raíz del proyecto al path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from plugins.VehicleDynamicsPlugin import VehicleDynamicsPlugin
+# from plugins.VehicleDynamicsPlugin import VehicleDynamicsPlugin
 
 class MyLab:
     """
@@ -20,6 +20,10 @@ class MyLab:
     def __init__(self):
         self.myParser = Parser()
         self.data_dst = None
+        self.interface = 'Ethernet 5'
+
+        self.event_payload = b'\x01'
+        self.event_payload_length = 1
 
     def start_someip_server(
         self,
@@ -52,10 +56,11 @@ class MyLab:
         # Comienza el servidor SOME/IP
         try:
             sd = someipSD()
-            sock = socketHandler()
+            sock = socketHandler(self.interface)
+
             self.data_dst = sd.myParser.ecu1_to_ecu2(origen, destino)
 
-            udp_sock = sock.bind_udp_socket(self.data_dst["ip_src"], self.data_dst["udp_dst"])
+            # udp_sock = sock.bind_udp_socket(self.data_dst["ip_src"], self.data_dst["udp_dst"])
 
             i = 0
             while i != 1:
@@ -64,8 +69,8 @@ class MyLab:
                 ack = sd.craft_subscribeEventGroupACK_packet(origen, destino, service_id)
                 
                 print("[INFO] Enviando OFFER...")
-                sd.sendSDpacket(offer_packet)
-                pkt_subscribe = sock.escuchar_subscribe_eventgroup(ack)
+                sd.sendSDpacket(offer_packet, self.interface)
+                pkt_subscribe = sock.escuchar_subscribe_eventgroup(ack, self.interface)
                 for x in range(0, 2):
                     self.someip_server_send_event(service_id)
                 
@@ -74,7 +79,7 @@ class MyLab:
                 # 3/0.2 nos da apra 15 paquetes la secuencia antes de que se desuscriba.
                 
 
-            udp_sock.close()
+            # udp_sock.close()
             return True, "Servidor iniciado correctamente"
 
         except Exception as e:
@@ -94,9 +99,11 @@ class MyLab:
         try:
             print("[INFO] Enviando EVENTO...")
             some = Someip()
+            some.payload = self.event_payload
+            some.payload_length = self.event_payload_length
             pk = some.craft_someip_pk(service_id, self.data_dst)
             # pk.show()
-            some.send_someip(pk)
+            some.send_someip(pk, self.interface)
         except Exception as e:
             return False, "Error al enviar el evento"
 

@@ -5,6 +5,8 @@ import socket
 from scapy.contrib.automotive.someip import *
 
 class socketHandler():
+    def __init__(self, interface):
+        self.interface = interface
     """
     El objetivo de esta clase es proporcionar los métodos necesarios para abrir un socket
     en el puerto indicado por nuestra ECU simulada. Que recibirá en mensaje SOME/IP de tipo
@@ -37,7 +39,7 @@ class socketHandler():
         return s
 
     # Aqui el service id no esta bien
-    def escuchar_subscribe_eventgroup(self, ack, interface="Ethernet 5", timeout=5):
+    def escuchar_subscribe_eventgroup(self, ack, interface, timeout=5):
         """
         Escucha en la interfaz de red la llegada de un mensaje SOME/IP de tipo 
         SubscribeEventGroup. Se utiliza un filtro en `sniff` para identificar 
@@ -63,7 +65,8 @@ class socketHandler():
         # Se envia el ACK de forma anticipada dando por hecho que habra subscribe por parte del cliente.
         # De no haberlo se producira un error, ya que no encontrará el mensaje con el type indicado ni 
         # el service id.
-        someipSD().sendSDpacket(ack)
+        time.sleep(0.1)
+        someipSD().sendSDpacket(ack, self.interface)
 
         # def filtro(pkt):
         #     if pkt.haslayer(SOMEIP):

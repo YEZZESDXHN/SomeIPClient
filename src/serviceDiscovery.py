@@ -188,7 +188,7 @@ class someipSD():
         )
         return packetACKSD
     
-    def sendSDpacket(self, pk, interface='Ethernet 5'):
+    def sendSDpacket(self, pk, interface):
         """
         Envía un paquete SOME/IP-SD por la interfaz de red especificada.
 

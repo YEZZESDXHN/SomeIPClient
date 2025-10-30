@@ -10,7 +10,7 @@ from src.parser import Parser
 import sys, os
 # Agrega el directorio raíz del proyecto al path para importar los plugins
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from plugins.VehicleDynamicsPlugin import VehicleDynamicsPlugin
+# from plugins.VehicleDynamicsPlugin import VehicleDynamicsPlugin
 
 class Someip():
     """
@@ -31,6 +31,8 @@ class Someip():
         Inicializa una nueva instancia de un paquete SOME/IP, incrementando
         automáticamente el Session ID para asegurar unicidad en cada mensaje.
         """
+        self.payload = b''
+        self.payload_length = 0
         self.some = SOMEIP()
         self.myParser = Parser()
         Someip.__session_id += 1
@@ -57,9 +59,9 @@ class Someip():
         #payload = data["SOMEIP"]["Payload"]
         #new = Someip()
         # Creamos la instancia del servicio a simular con la payload
-        plugin = VehicleDynamicsPlugin()
+        # plugin = VehicleDynamicsPlugin()
         # payload = plugin.get_payload("VehicleSpeed")
-        payload = b"\1"
+        # payload = b"\1"
         # payload = struct.pack(
         #     "<BfBBBfBB",  # estructura
         #     1,            # vehicleSpeedValueState (VALID)
@@ -80,8 +82,11 @@ class Someip():
         self.some.retcode = 0x00
 
         # Se añade la payload para que SOMEIP tenga su campo data correctamente rellenado
-        self.some.add_payload(payload)
-        self.some.len = len(payload) + 8
+        self.some.add_payload(self.payload[:self.payload_length])
+
+        if self.payload_length > len(self.payload):
+            self.payload_length = len(self.payload)
+        self.some.len = self.payload_length + 8
         
         pk = (
             Ether(src=data_dst["mac_address"], dst=data_dst["mac_dst"]) /
@@ -90,10 +95,10 @@ class Someip():
             UDP(sport=data_dst["someip_port_src"], dport=data_dst["someip_port_dst"]) /
             self.some /
             # Se fuerza a que realmente se envíe la carga útil
-            Raw(load=payload)
+            Raw(load=self.payload[:self.payload_length])
         )
         return pk
     
-    def send_someip(self, pk):
-        sendp(x=pk, verbose=False, iface='Ethernet 5')
+    def send_someip(self, pk, interface):
+        sendp(x=pk, verbose=False, iface=interface)
 
