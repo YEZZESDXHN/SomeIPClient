@@ -1,3 +1,4 @@
+import time
 from typing import Tuple
 from src.parser import Parser
 from src.serviceDiscovery import someipSD
@@ -64,9 +65,8 @@ class MyLab:
                 
                 print("[INFO] Enviando OFFER...")
                 sd.sendSDpacket(offer_packet)
-                
                 pkt_subscribe = sock.escuchar_subscribe_eventgroup(ack)
-                for x in range(0, 15):
+                for x in range(0, 2):
                     self.someip_server_send_event(service_id)
                 
                 i+=1
@@ -95,7 +95,7 @@ class MyLab:
             print("[INFO] Enviando EVENTO...")
             some = Someip()
             pk = some.craft_someip_pk(service_id, self.data_dst)
-            pk.show()
+            # pk.show()
             some.send_someip(pk)
         except Exception as e:
             return False, "Error al enviar el evento"

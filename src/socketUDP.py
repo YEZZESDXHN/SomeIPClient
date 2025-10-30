@@ -31,13 +31,13 @@ class socketHandler():
         :rtype: socket.socket
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.bind((ip, port))
+        # s.bind((ip, port))
         s.setblocking(False)
         print(f"[INFO] Socket UDP escuchando en {ip}:{port}")
         return s
 
     # Aqui el service id no esta bien
-    def escuchar_subscribe_eventgroup(self, ack, interface="eth1", timeout=5):
+    def escuchar_subscribe_eventgroup(self, ack, interface="Ethernet 5", timeout=5):
         """
         Escucha en la interfaz de red la llegada de un mensaje SOME/IP de tipo 
         SubscribeEventGroup. Se utiliza un filtro en `sniff` para identificar 
@@ -65,19 +65,21 @@ class socketHandler():
         # el service id.
         someipSD().sendSDpacket(ack)
 
-        def filtro(pkt):
-            if pkt.haslayer(SOMEIP):
-                someip = pkt.getlayer(SOMEIP)
-                if hasattr(someip, "entry_array"):
-                    for entry in someip.entry_array:
-                        if entry.type == 0x06:
-                            print("[OK] SubscribeEventGroup recibido:")
-                            print("[INFO] Enviando ACK...")
-                            print("[OK] ACK enviado.")
-                            # Muestra el paquete
-                            pkt.show()
-                            return True
-            return False
+        # def filtro(pkt):
+        #     if pkt.haslayer(SOMEIP):
+        #         someip = pkt.getlayer(SOMEIP)
+        #         if hasattr(someip, "entry_array"):
+        #             for entry in someip.entry_array:
+        #                 print(f"entry.type={entry.type}")
+        #                 if entry.type == 0x06:
+        #                     someipSD().sendSDpacket(ack)
+        #                     print("[OK] SubscribeEventGroup recibido:")
+        #                     print("[INFO] Enviando ACK...")
+        #                     print("[OK] ACK enviado.")
+        #                     # Muestra el paquete
+        #                     pkt.show()
+        #                     return True
+        #     return False
 
-        pkt = sniff(iface=interface, timeout=timeout, stop_filter=filtro, store=1)
-        return pkt[0] if pkt else None
+        # pkt = sniff(iface=interface, timeout=timeout, stop_filter=filtro, store=1)
+        # return pkt[0] if pkt else None

@@ -38,7 +38,7 @@ class someipSD():
 
         # Se inicializa la parte de sd
         self.s = SD()
-        self.s.flags = 0x03
+        self.s.flags = 0xc0
 
     def _setSDEntry(self, method_data: Dict[str, Any], option: str, data_dst: Dict[str, Any]):
         """
@@ -108,7 +108,7 @@ class someipSD():
             # Aqui va a a tener una mac origen y una mac destino
             Ether(src=data_dst["mac_address"], dst=data_dst["MAC_1500_MULTICAST"]) /  # Multicast MAC para 224.244.224.245
             # Estandar que define el tagueado de la VLAN, a mi me interesa la 1500
-            Dot1Q(vlan=data_dst["vlan"], prio=5) /
+            Dot1Q(vlan=data_dst["vlan"], prio=0) /
             # Direccion ip fuente y direccion IP destino
             IP(src=data_dst["ip"], dst=data_dst["IP_1500_MULTICAST"]) /
             # Direccion UDP fuente y destino
@@ -178,7 +178,7 @@ class someipSD():
         # Aqui va a a tener una mac origen y una mac destino
         Ether(src=data_dst["mac_address"], dst=data_dst["mac_dst"]) /  # La de la SA
         # Estandar que define el tagueado de la VLAN, a mi me interesa la 1500
-        Dot1Q(vlan=data_dst["vlan"], prio=5) /
+        Dot1Q(vlan=data_dst["vlan"], prio=0) /
         # Direccion ip fuente y direccion IP destino
         IP(src=data_dst["ip_src"], dst=data_dst["ip_dst"]) /
         # Direccion UDP fuente y destino
@@ -188,7 +188,7 @@ class someipSD():
         )
         return packetACKSD
     
-    def sendSDpacket(self, pk, interface='ASIX AX88179 USB 3.0 to Gigabit Ethernet Adapter'):
+    def sendSDpacket(self, pk, interface='Ethernet 5'):
         """
         Envía un paquete SOME/IP-SD por la interfaz de red especificada.
 

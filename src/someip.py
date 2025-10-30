@@ -58,7 +58,8 @@ class Someip():
         #new = Someip()
         # Creamos la instancia del servicio a simular con la payload
         plugin = VehicleDynamicsPlugin()
-        payload = plugin.get_payload("VehicleSpeed")
+        # payload = plugin.get_payload("VehicleSpeed")
+        payload = b"\1"
         # payload = struct.pack(
         #     "<BfBBBfBB",  # estructura
         #     1,            # vehicleSpeedValueState (VALID)
@@ -70,9 +71,9 @@ class Someip():
         #     1,            # standStillSupposedValueState (VALID)
         #     1             # standStillSupposed (STANDSTILL)
         # )
-        self.some.srv_id = 568
-        self.some.sub_id = 32908
-        self.some.client_id = 0x0701
+        self.some.srv_id = 0x4000
+        self.some.sub_id = 0x8001
+        self.some.client_id = 0x60
         self.some.proto_ver = 0x01
         self.some.iface_ver = 0x01
         self.some.msg_type = 0x02
@@ -80,11 +81,11 @@ class Someip():
 
         # Se añade la payload para que SOMEIP tenga su campo data correctamente rellenado
         self.some.add_payload(payload)
-        #self.some.len = len(payload) + 8
+        self.some.len = len(payload) + 8
         
         pk = (
             Ether(src=data_dst["mac_address"], dst=data_dst["mac_dst"]) /
-            Dot1Q(vlan=data_dst["vlan"], prio=5) /
+            Dot1Q(vlan=data_dst["vlan"], prio=0) /
             IP(src=data_dst["ip_src"], dst=data_dst["ip_dst"]) /
             UDP(sport=data_dst["someip_port_src"], dport=data_dst["someip_port_dst"]) /
             self.some /
@@ -94,5 +95,5 @@ class Someip():
         return pk
     
     def send_someip(self, pk):
-        sendp(x=pk, verbose=False, iface='ASIX AX88179 USB 3.0 to Gigabit Ethernet Adapter')
+        sendp(x=pk, verbose=False, iface='Ethernet 5')
 
