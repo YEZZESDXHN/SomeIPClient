@@ -76,7 +76,7 @@ jobs:
         shell: pwsh
         run:
           python -m nuitka --assume-yes-for-downloads
-          --standalone --show-progress --show-memory --remove-output --follow-imports --lto=yes --windows-disable-console
+          --standalone --show-progress --show-memory --remove-output --follow-imports --lto=yes
           --include-data-files="${{ github.workspace }}/data/ecu_data.json=data/ecu_data.json"
           --include-data-files="${{ github.workspace }}/data/services.json=data/services.json"
           --output-dir="${{ github.workspace }}/dist"
