@@ -1,3 +1,4 @@
+
 import time
 import struct
 import socket
@@ -165,6 +166,20 @@ class SomeIPBase:
         sendp(pkt, iface=self.iface, verbose=0)
 
 
+class MethodType(str, Enum):
+    RR_Method = "RR_Method"
+    FF_Method = "FF_Method"
+    Getter = "Getter"
+    Setter = "Setter"
+
+
+@dataclass
+class SomeIPMethod:
+    method_id: int = 0
+    type: MethodType = MethodType.RR_Method
+    payload: Optional[bytes] = b''
+
+
 # Provider (实现 RR, FF, Getter, Setter)
 class SomeIPProvider(SomeIPBase):
     states = ['unsubscribed', 'subscribed']
@@ -177,12 +192,13 @@ class SomeIPProvider(SomeIPBase):
 
         # 2. 方法路由表 (Hardcoded for logic demo)
         # 格式: ID -> (类型, 处理函数)
-        self.methods = {
-            0x0001: ('RR', self._handle_rr_add),  # Request-Response: 加法
-            0x0002: ('FF', self._handle_ff_log),  # Fire & Forget: 日志
-            0x0003: ('SET', self._handle_setter),  # Setter: 设置值
-            0x0004: ('GET', self._handle_getter)  # Getter: 获取值
-        }
+        # self.methods = {
+        #     0x0001: ('RR', self._handle_rr_add),  # Request-Response: 加法
+        #     0x0002: ('FF', self._handle_ff_log),  # Fire & Forget: 日志
+        #     0x0003: ('SET', self._handle_setter),  # Setter: 设置值
+        #     0x0004: ('GET', self._handle_getter)  # Getter: 获取值
+        # }
+        self.methods = {}
 
         # 3. 状态机与调度器
         self.machine = Machine(model=self, states=SomeIPProvider.states, initial='unsubscribed')
@@ -349,7 +365,6 @@ class SomeIPSubscriber(SomeIPBase):
         self.send_request(0x0004, b'', self.provider_ip)
 
 
-# ================= 4. 主程序 =================
 if __name__ == "__main__":
     MAC_PROV = "02:00:00:00:00:01"
     MAC_SUB = "02:00:00:00:00:02"
