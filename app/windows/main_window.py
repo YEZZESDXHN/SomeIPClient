@@ -1,3 +1,5 @@
+import json
+import os
 import socket
 import struct
 import sys
@@ -5,7 +7,8 @@ from time import sleep
 from typing import Union, Optional
 
 from PySide6.QtCore import Slot, QThread, QObject, Signal, QTimer, Qt
-from PySide6.QtWidgets import QMainWindow, QMessageBox
+from PySide6.QtGui import QStandardItemModel, QAction, QCursor, QStandardItem
+from PySide6.QtWidgets import QMainWindow, QMessageBox, QTableView, QMenu
 from scapy.all import conf
 from scapy.contrib.automotive.someip import SDEntry_Service, SDOption_IP4_EndPoint, SD, SOMEIP, SDEntry_EventGroup
 from scapy.layers.inet import UDP, IP
@@ -112,13 +115,14 @@ class SomeIPSender:
 
 
 class ZCUSomeipSender(QObject, SomeIPSender):
-    def __init__(self, parent=None):
+    def __init__(self, parent: "MainWindow"=None):
         super().__init__(parent)
+        self.parent = parent
 
     def send_multicast_usage_mode(self, usage_mode: int):
         self.sd_session_id += 1
         s32g_ip = '172.16.114.10'
-        multicast_ip = '239.5.10.7'
+        multicast_ip = self.parent.comboBox_multicast.currentText()
         s32g_mac = '02:DF:53:00:00:00'
         multicast_mac = get_multicast_mac(multicast_ip)
 
@@ -288,7 +292,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                           'Abandoned'])
 
         self.someip_send_thread = QThread()
-        self.someip_sender = ZCUSomeipSender()
+        self.someip_sender = ZCUSomeipSender(parent=self)
         self.someip_sender.moveToThread(self.someip_send_thread)
         self.someip_send_thread.start()
         self.multicast_usage_mode_timer = QTimer()
@@ -313,6 +317,153 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.send_mr_fuse_id_on_signal.connect(self.someip_sender.send_mr_fuse_id_on)
         self.send_mr_fuse_id_off_signal.connect(self.someip_sender.send_mr_fuse_id_off)
         self.send_multicast_usage_mode_signal.connect(self.someip_sender.send_multicast_usage_mode)
+        self.json_path = 'fuse_id.json'
+        self.fuse_id_config = {}
+        self.init_ml_fuseid_tableview()
+        self.init_mr_fuseid_tableview()
+        self.load_data()
+
+    def load_data(self):
+        if os.path.exists(self.json_path):
+            try:
+                with open(self.json_path, "r", encoding="utf-8") as f:
+                    self.fuse_id_config = json.load(f)
+                    for item in self.fuse_id_config['ml_fuse_id']:
+                        self.ml_fuseid_model.appendRow([
+                            QStandardItem(str(item.get("FuseID", ""))),
+                            QStandardItem(str(item.get("comment", "")))
+                        ])
+                    for item in self.fuse_id_config['mr_fuse_id']:
+                        self.mr_fuseid_model.appendRow([
+                            QStandardItem(str(item.get("FuseID", ""))),
+                            QStandardItem(str(item.get("comment", "")))
+                        ])
+            except:
+                pass
+
+    def save_to_json(self):
+        self.fuse_id_config['ml_fuse_id'].clear()
+        self.fuse_id_config['mr_fuse_id'].clear()
+        for row in range(self.ml_fuseid_model.rowCount()):
+            self.fuse_id_config['ml_fuse_id'].append({
+                "FuseID": self.ml_fuseid_model.item(row, 0).text() if self.ml_fuseid_model.item(row, 0) else "",
+                "comment": self.ml_fuseid_model.item(row, 1).text() if self.ml_fuseid_model.item(row, 1) else ""
+            })
+        for row in range(self.mr_fuseid_model.rowCount()):
+            self.fuse_id_config['mr_fuse_id'].append({
+                "FuseID": self.mr_fuseid_model.item(row, 0).text() if self.mr_fuseid_model.item(row, 0) else "",
+                "comment": self.mr_fuseid_model.item(row, 1).text() if self.mr_fuseid_model.item(row, 1) else ""
+            })
+        with open(self.json_path, "w", encoding="utf-8") as f:
+            json.dump(self.fuse_id_config, f, indent=4, ensure_ascii=False)
+
+    def init_ml_fuseid_tableview(self):
+        self.ml_fuseid_model = QStandardItemModel()
+        self.ml_fuseid_model.setHorizontalHeaderLabels(["FuseID", "Comment"])
+        self.tableView_FuseIDL.setModel(self.ml_fuseid_model)
+        self.tableView_FuseIDL.horizontalHeader().setStretchLastSection(True)
+        # 设置为不可直接双击编辑（如果需要点击即选中的话，建议设为只读或整行选中）
+        self.tableView_FuseIDL.setEditTriggers(QTableView.DoubleClicked)
+        self.tableView_FuseIDL.setSelectionBehavior(QTableView.SelectRows)
+        self.tableView_FuseIDL.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tableView_FuseIDL.customContextMenuRequested.connect(self.show_context_menu_ml)
+        self.tableView_FuseIDL.clicked.connect(self.on_ml_table_clicked)
+
+    def init_mr_fuseid_tableview(self):
+        self.mr_fuseid_model = QStandardItemModel()
+        self.mr_fuseid_model.setHorizontalHeaderLabels(["FuseID", "Comment"])
+        self.tableView_FuseIDR.setModel(self.mr_fuseid_model)
+        self.tableView_FuseIDR.horizontalHeader().setStretchLastSection(True)
+        # 设置为不可直接双击编辑（如果需要点击即选中的话，建议设为只读或整行选中）
+        self.tableView_FuseIDR.setEditTriggers(QTableView.DoubleClicked)
+        self.tableView_FuseIDR.setSelectionBehavior(QTableView.SelectRows)
+        self.tableView_FuseIDR.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tableView_FuseIDR.customContextMenuRequested.connect(self.show_context_menu_mr)
+        self.tableView_FuseIDR.clicked.connect(self.on_mr_table_clicked)
+
+    def on_ml_table_clicked(self, index):
+        """左键点击行：获取第一列值"""
+        item = self.ml_fuseid_model.item(index.row(), 0)
+        if item:
+            fuse_id = item.text()
+            self.lineEdit_MLFuseid.setText(fuse_id)
+
+    def on_mr_table_clicked(self, index):
+        """左键点击行：获取第一列值"""
+        item = self.mr_fuseid_model.item(index.row(), 0)
+        if item:
+            fuse_id = item.text()
+            self.lineEdit_MRFuseID.setText(fuse_id)
+
+
+
+    def show_context_menu_mr(self, pos):
+        """右键点击：弹出菜单"""
+        menu = QMenu(self)
+
+        # 创建菜单项
+        add_action = QAction("新增行", self)
+        del_action = QAction("删除选中行", self)
+
+        # 连接动作
+        add_action.triggered.connect(self.add_row_mr)
+        del_action.triggered.connect(self.delete_row_mr)
+
+        menu.addAction(add_action)
+        menu.addAction(del_action)
+
+        # 在鼠标当前位置显示菜单
+        menu.exec(QCursor.pos())
+
+    def add_row_mr(self):
+        # 默认添加一行空数据，你可以之后双击修改
+        self.mr_fuseid_model.appendRow([QStandardItem(""), QStandardItem("备注")])
+
+    def delete_row_mr(self):
+        # 获取选中的行索引
+        selection_model = self.tableView_FuseIDR.selectionModel()
+        indexes = selection_model.selectedRows()
+
+        if not indexes:
+            return
+
+        # 倒序删除，防止索引错乱
+        for index in sorted(indexes, reverse=True):
+            self.mr_fuseid_model.removeRow(index.row())
+
+    def show_context_menu_ml(self, pos):
+        """右键点击：弹出菜单"""
+        menu = QMenu(self)
+
+        # 创建菜单项
+        add_action = QAction("新增行", self)
+        del_action = QAction("删除选中行", self)
+
+        # 连接动作
+        add_action.triggered.connect(self.add_row_ml)
+        del_action.triggered.connect(self.delete_row_ml)
+
+        menu.addAction(add_action)
+        menu.addAction(del_action)
+
+        # 在鼠标当前位置显示菜单
+        menu.exec(QCursor.pos())
+
+    def add_row_ml(self):
+        # 默认添加一行空数据，你可以之后双击修改
+        self.ml_fuseid_model.appendRow([QStandardItem(""), QStandardItem("备注")])
+
+    def delete_row_ml(self):
+        # 获取选中的行索引
+        selection_model = self.tableView_FuseIDL.selectionModel()
+        indexes = selection_model.selectedRows()
+
+        if not indexes:
+            return
+
+        # 倒序删除，防止索引错乱
+        for index in sorted(indexes, reverse=True):
+            self.ml_fuseid_model.removeRow(index.row())
 
     def show_driver_error(self):
         """弹出带有超链接的驱动缺失警告窗"""
@@ -410,6 +561,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.comboBox_ifaces.blockSignals(False)
 
     def closeEvent(self, event) -> None:
+        self.save_to_json()
+        event.accept()
         self.multicast_usage_mode_timer.stop()
         if self.someip_send_thread:
             self.someip_send_thread.quit()

@@ -16,9 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QHBoxLayout,
-    QLabel, QLineEdit, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
-    QTabWidget, QVBoxLayout, QWidget)
+    QHeaderView, QLabel, QLineEdit, QMainWindow,
+    QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
+    QStatusBar, QTabWidget, QTableView, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -33,10 +34,6 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer_2, 2, 0, 1, 1)
-
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.label = QLabel(self.centralwidget)
@@ -87,6 +84,26 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
 
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.label_4 = QLabel(self.centralwidget)
+        self.label_4.setObjectName(u"label_4")
+        sizePolicy.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
+        self.label_4.setSizePolicy(sizePolicy)
+
+        self.horizontalLayout_5.addWidget(self.label_4)
+
+        self.comboBox_multicast = QComboBox(self.centralwidget)
+        self.comboBox_multicast.addItem("")
+        self.comboBox_multicast.addItem("")
+        self.comboBox_multicast.setObjectName(u"comboBox_multicast")
+        self.comboBox_multicast.setEditable(True)
+
+        self.horizontalLayout_5.addWidget(self.comboBox_multicast)
+
+
+        self.gridLayout.addLayout(self.horizontalLayout_5, 2, 0, 1, 1)
+
 
         self.verticalLayout.addLayout(self.gridLayout)
 
@@ -122,9 +139,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
 
-        self.verticalSpacer = QSpacerItem(20, 178, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.tableView_FuseIDL = QTableView(self.ZCUL)
+        self.tableView_FuseIDL.setObjectName(u"tableView_FuseIDL")
 
-        self.verticalLayout_3.addItem(self.verticalSpacer)
+        self.verticalLayout_3.addWidget(self.tableView_FuseIDL)
 
         self.tabWidget.addTab(self.ZCUL, "")
         self.ZCUR = QWidget()
@@ -156,9 +174,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 178, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.tableView_FuseIDR = QTableView(self.ZCUR)
+        self.tableView_FuseIDR.setObjectName(u"tableView_FuseIDR")
 
-        self.verticalLayout_2.addItem(self.verticalSpacer_2)
+        self.verticalLayout_2.addWidget(self.tableView_FuseIDR)
 
         self.tabWidget.addTab(self.ZCUR, "")
 
@@ -186,6 +205,10 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"UsageMode\u7ec4\u64ad", None))
         self.pushButton_SendUsageMode.setText(QCoreApplication.translate("MainWindow", u"Send", None))
         self.pushButton_IfacesRefresh.setText(QCoreApplication.translate("MainWindow", u"Refresh", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"UsageMode\u7ec4\u64ad\u5730\u5740", None))
+        self.comboBox_multicast.setItemText(0, QCoreApplication.translate("MainWindow", u"239.5.10.7", None))
+        self.comboBox_multicast.setItemText(1, QCoreApplication.translate("MainWindow", u"239.5.1.2", None))
+
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\u914d\u7535(Hex)", None))
         self.lineEdit_MLFuseid.setPlaceholderText(QCoreApplication.translate("MainWindow", u"0x101", None))
         self.pushButton_MLFuseIDOn.setText(QCoreApplication.translate("MainWindow", u"\u4e0a\u7535", None))
